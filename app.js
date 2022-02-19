@@ -4,7 +4,21 @@ const keyboard = document.querySelector('.key-container')
 const messageDisplay = document.querySelector('.message-container')
 
 // ??? Example test word, will be pulling from a randomly made word list later
-const whack = 'WHACK'
+//const whack = 'WHACK'
+
+let whack
+
+const getWhack = () => {
+    fetch('http://localhost:8000/word')
+        .then(response => response.json())
+        .then(json => {
+            console.log(json)
+            whack = json.toUpperCase()
+        })
+        .catch(err => console.log(err))
+}
+getWhack()
+
 const keys = [
     'Q',
     'W',
@@ -71,21 +85,27 @@ keys.forEach(key => {
 })
 
 const handleClick = (key) => {
-    console.log('clicked', key)
-    // Delete last key function
-    if (key === '«') {
-        deleteLetter()
-        console.log('guessRows',guessRows)
-        return
+    if (!isGameOver){
+        console.log('clicked', key)
+        // Delete last key function
+        if (key === '«') {
+            deleteLetter()
+            console.log('guessRows',guessRows)
+            return
+        }
+        // Enter word function
+        if (key === 'ENTER') {
+            console.log('check row')
+            console.log('guessRows',guessRows)
+            checkRow()
+            return
+        }
+        // Hint Function
+        // Next Word function
+        //Add letter to guess function
+        addLetter(key)
     }
-    // Enter word function
-    if (key === 'ENTER') {
-        console.log('check row')
-        console.log('guessRows',guessRows)
-        checkRow()
-        return
-    }
-    addLetter(key)
+
 }
 
 const addLetter = (key) => {
@@ -118,25 +138,33 @@ const checkRow = () => {
         //shake row
         showMessage('Not enough letters!')
     } else if (currentTile > 4) {
-        console.log('guess is ' + guess + 'the whack is ' + whack)
-        flipTile()
-        if (guess === whack) {
-            // Have variable of username
-            // Delay message shown
-            setTimeout(() => showMessage('Great job Chi!'), 2500)
-            isGameOver = true
-        } else {
-            if (currentRow >= 5) {
-                isGameOver = true
-                showMessage('Game Over...that was a tough one...')
-                setTimeout(() => showMessage('Game Over...that was a tough one...'), 2500)
-                return
-            }
-            if (currentRow < 5) {
-                currentRow++
-                currentTile = 0
-            }
-        }
+        fetch(`http://localhost:8000/check/?word=${guess}`)
+            .then(response => response.json())
+            .then(json => {
+                console.log(json)
+                if (json == 'Entry word not found'){
+                    showMessage(guess + ' is not in the word list!')
+                } else {
+                    console.log('guess is ' + guess + ' the whack is ' + whack)
+                    flipTile()
+                    if (guess == whack) {
+                        // Have variable of username to personally congratulate them
+                        // Delay message shown
+                        setTimeout(() => showMessage('Great job Chi!'), 2500)
+                        isGameOver = true
+                    } else {
+                        if (currentRow >= 5) {
+                            isGameOver = true
+                            setTimeout(() => showMessage('Game Over...that was a tough one...'), 2500)
+                            return
+                        }
+                        if (currentRow < 5) {
+                            currentRow++
+                            currentTile = 0
+                        }
+                    }
+                }
+            }).catch(err => console.log(err))
     }
 
 }
