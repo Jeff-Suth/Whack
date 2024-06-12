@@ -46,7 +46,6 @@ function drawBox(container, row, col, letter = '') {
 }
 
 function drawKeyboard(container) {
-  console.log('Drawing keyboard'); // Debugging log
   const keyboardLayout = [
     'QWERTYUIOP',
     'ASDFGHJKL',
@@ -56,9 +55,17 @@ function drawKeyboard(container) {
   const keyboard = document.createElement('div');
   keyboard.className = 'keyboard';
 
-  keyboardLayout.forEach(row => {
+  keyboardLayout.forEach((row, rowIndex) => {
     const rowDiv = document.createElement('div');
     rowDiv.className = 'keyboard-row';
+    if (rowIndex === 2) {
+      // Add Enter key to the beginning of the last row
+      const enterKey = document.createElement('button');
+      enterKey.className = 'key special-key';
+      enterKey.textContent = 'Enter';
+      enterKey.onclick = () => handleKeyClick('Enter');
+      rowDiv.appendChild(enterKey);
+    }
     row.split('').forEach(key => {
       const keyDiv = document.createElement('button');
       keyDiv.className = 'key';
@@ -66,24 +73,21 @@ function drawKeyboard(container) {
       keyDiv.onclick = () => handleKeyClick(key);
       rowDiv.appendChild(keyDiv);
     });
+    if (rowIndex === 2) {
+      // Add Backspace key to the end of the last row
+      const backspaceKey = document.createElement('button');
+      backspaceKey.className = 'key special-key';
+      backspaceKey.textContent = '<-';
+      backspaceKey.onclick = () => handleKeyClick('Backspace');
+      rowDiv.appendChild(backspaceKey);
+    }
     keyboard.appendChild(rowDiv);
   });
 
-  const enterKey = document.createElement('button');
-  enterKey.className = 'key special-key';
-  enterKey.textContent = 'Enter';
-  enterKey.onclick = () => handleKeyClick('Enter');
-  keyboard.appendChild(enterKey);
-
-  const backspaceKey = document.createElement('button');
-  backspaceKey.className = 'key special-key';
-  backspaceKey.textContent = 'Backspace';
-  backspaceKey.onclick = () => handleKeyClick('Backspace');
-  keyboard.appendChild(backspaceKey);
-
   container.appendChild(keyboard);
-  console.log('Keyboard drawn'); // Debugging log
 }
+
+
 
 function handleKeyClick(key) {
   if (key === 'Enter') {
