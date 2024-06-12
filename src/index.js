@@ -11,6 +11,7 @@ const state = {
     .map(() => Array(5).fill('')),
   currentRow: 0,
   currentCol: 0,
+  guessedWords: [] // Array to store guessed words
 };
 
 function drawGrid(container) {
@@ -87,16 +88,19 @@ function drawKeyboard(container) {
   container.appendChild(keyboard);
 }
 
-
-
 function handleKeyClick(key) {
   if (key === 'Enter') {
     if (state.currentCol === 5) {
       const word = getCurrentWord();
       if (isWordValid(word)) {
-        revealWord(word);
-        state.currentRow++;
-        state.currentCol = 0;
+        if (state.guessedWords.includes(word)) {
+          alert('You have already guessed this word.');
+        } else {
+          state.guessedWords.push(word); // Add the word to the guessed words array
+          revealWord(word);
+          state.currentRow++;
+          state.currentCol = 0;
+        }
       } else {
         alert('Not a valid word.');
       }

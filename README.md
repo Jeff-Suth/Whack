@@ -15,4 +15,3 @@
 3. Add in letter highlighting based on guess
 4. Add more words into list, like latte
 5. Add a way to recognize a letter is highlighted and can overwrite it
-6. Don't let user guess the same thing twice! (store guesses in an array and check against that as well before allowing guess)
