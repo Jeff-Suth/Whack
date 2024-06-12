@@ -45,29 +45,70 @@ function drawBox(container, row, col, letter = '') {
   return box;
 }
 
-function registerKeyboardEvents() {
-  document.body.onkeydown = (e) => {
-    const key = e.key;
-    if (key === 'Enter') {
-      if (state.currentCol === 5) {
-        const word = getCurrentWord();
-        if (isWordValid(word)) {
-          revealWord(word);
-          state.currentRow++;
-          state.currentCol = 0;
-        } else {
-          alert('Not a valid word.');
-        }
+function drawKeyboard(container) {
+  console.log('Drawing keyboard'); // Debugging log
+  const keyboardLayout = [
+    'QWERTYUIOP',
+    'ASDFGHJKL',
+    'ZXCVBNM'
+  ];
+
+  const keyboard = document.createElement('div');
+  keyboard.className = 'keyboard';
+
+  keyboardLayout.forEach(row => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'keyboard-row';
+    row.split('').forEach(key => {
+      const keyDiv = document.createElement('button');
+      keyDiv.className = 'key';
+      keyDiv.textContent = key;
+      keyDiv.onclick = () => handleKeyClick(key);
+      rowDiv.appendChild(keyDiv);
+    });
+    keyboard.appendChild(rowDiv);
+  });
+
+  const enterKey = document.createElement('button');
+  enterKey.className = 'key special-key';
+  enterKey.textContent = 'Enter';
+  enterKey.onclick = () => handleKeyClick('Enter');
+  keyboard.appendChild(enterKey);
+
+  const backspaceKey = document.createElement('button');
+  backspaceKey.className = 'key special-key';
+  backspaceKey.textContent = 'Backspace';
+  backspaceKey.onclick = () => handleKeyClick('Backspace');
+  keyboard.appendChild(backspaceKey);
+
+  container.appendChild(keyboard);
+  console.log('Keyboard drawn'); // Debugging log
+}
+
+function handleKeyClick(key) {
+  if (key === 'Enter') {
+    if (state.currentCol === 5) {
+      const word = getCurrentWord();
+      if (isWordValid(word)) {
+        revealWord(word);
+        state.currentRow++;
+        state.currentCol = 0;
+      } else {
+        alert('Not a valid word.');
       }
     }
-    if (key === 'Backspace') {
-      removeLetter();
-    }
-    if (isLetter(key)) {
-      addLetter(key);
-    }
+  } else if (key === 'Backspace') {
+    removeLetter();
+  } else if (isLetter(key)) {
+    addLetter(key);
+  }
 
-    updateGrid();
+  updateGrid();
+}
+
+function registerKeyboardEvents() {
+  document.body.onkeydown = (e) => {
+    handleKeyClick(e.key);
   };
 }
 
@@ -165,6 +206,10 @@ function removeLetter() {
 function startup() {
   const game = document.getElementById('game');
   drawGrid(game);
+
+  const keyboardContainer = document.getElementById('keyboard-container');
+  console.log('Keyboard container:', keyboardContainer); // Debugging log
+  drawKeyboard(keyboardContainer);
 
   registerKeyboardEvents();
 }
