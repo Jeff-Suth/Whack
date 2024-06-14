@@ -13,5 +13,4 @@
 1. Add in local profile for individual user
 2. Add experience and rank system
 3. Add in letter highlighting based on guess
-4. Add more words into list, like latte
-5. Add a way to recognize a letter is highlighted and can overwrite it
+4. Add a way to recognize a letter is highlighted and can overwrite it
