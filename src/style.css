@@ -110,7 +110,6 @@ hr {
   margin-right: 0.75rem;
 }
 
-/* Keyboard container styling */
 .keyboard {
   display: flex;
   flex-direction: column;
@@ -119,14 +118,12 @@ hr {
   gap: 0.5rem; /* Add some spacing between rows */
 }
 
-/* Keyboard row styling */
 .keyboard-row {
   display: flex;
   justify-content: center;
   gap: 0.5rem; /* Add some spacing between keys */
 }
 
-/* Key button styling */
 .key {
   background-color: var(--empty);
   border: 1px solid var(--default);
@@ -142,11 +139,22 @@ hr {
   text-align: center;
 }
 
-/* Special key styling */
 .key.special-key {
   max-width: 100px;
   flex: 2; /* Make the Enter and Backspace keys larger */
   padding: 1rem 0.5rem;
+}
+
+.key.empty {
+  background-color: #141313;
+}
+
+.key.wrong {
+  background-color: #b59f3b;
+}
+
+.key.right {
+  background-color: #538d4e;
 }
 
 @media (max-width: 600px) {
@@ -156,8 +164,8 @@ hr {
   }
 
   .key.special-key {
-    max-width: 80px;
-    padding: 0.5rem 0.2rem;
+    max-width: 60px;
+    padding: 0.5rem;
   }
 }
 

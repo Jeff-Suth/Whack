@@ -1,9 +1,6 @@
-import { testDictionary, realDictionary } from './dictionary.js';
+import { wordList } from './dictionary.js';
 
-// for testing purposes, make sure to use the test dictionary
-console.log('test dictionary:', testDictionary);
-
-const dictionary = realDictionary;
+const dictionary = wordList;
 const state = {
   secret: dictionary[Math.floor(Math.random() * dictionary.length)],
   grid: Array(6)
@@ -71,6 +68,7 @@ function drawKeyboard(container) {
       const keyDiv = document.createElement('button');
       keyDiv.className = 'key';
       keyDiv.textContent = key;
+      keyDiv.id = `key-${key}`; // Add id to key for later reference
       keyDiv.onclick = () => handleKeyClick(key);
       rowDiv.appendChild(keyDiv);
     });
@@ -168,13 +166,17 @@ function revealWord(guess) {
         letterPosition > numOfOccurrencesSecret
       ) {
         box.classList.add('empty');
+        updateKeyClass(letter, 'empty');
       } else {
         if (letter === state.secret[i]) {
           box.classList.add('right');
+          updateKeyClass(letter, 'right');
         } else if (state.secret.includes(letter)) {
           box.classList.add('wrong');
+          updateKeyClass(letter, 'wrong');
         } else {
           box.classList.add('empty');
+          updateKeyClass(letter, 'empty');
         }
       }
     }, ((i + 1) * animation_duration) / 2);
@@ -193,6 +195,15 @@ function revealWord(guess) {
       alert(`Better luck next time! The word was ${state.secret}.`);
     }
   }, 3 * animation_duration);
+}
+
+function updateKeyClass(key, className) {
+  const keyElement = document.getElementById(`key-${key.toUpperCase()}`);
+  if (keyElement && !keyElement.classList.contains('right')) { 
+    // Only update if it's not already marked correct
+    keyElement.classList.remove('empty', 'wrong', 'right');
+    keyElement.classList.add(className);
+  }
 }
 
 function isLetter(key) {
