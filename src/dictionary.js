@@ -1,6 +1,4 @@
-export const testDictionary = ['earth', 'plane', 'crane', 'audio', 'house', 'offer', 'often'];
-
-export const realDictionary = [
+export const wordList = [
   "rossa",
   "jetty",
   "wizzo",
@@ -8567,7 +8565,7 @@ export const realDictionary = [
   "plavs",
   "unled",
   "wafer",
-  "saugh",
+  "sadge",
   "trooz",
   "stale",
   "cadie",
