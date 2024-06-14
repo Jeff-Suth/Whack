@@ -1,3 +1,4 @@
+import { user } from './user.js';
 import { wordList } from './dictionary.js';
 
 const dictionary = wordList;
@@ -10,6 +11,21 @@ const state = {
   currentCol: 0,
   guessedWords: [] // Array to store guessed words
 };
+
+let currentUser;
+
+function startup() {
+  const username = prompt("Enter your username:"); // Prompt the user to enter their username
+  currentUser = new user(username); // Create a new user instance
+  const game = document.getElementById('game');
+  drawGrid(game);
+
+  const keyboardContainer = document.getElementById('keyboard-container');
+  drawKeyboard(keyboardContainer);
+
+  registerKeyboardEvents();
+  displayStats(); // Display initial stats
+}
 
 function drawGrid(container) {
   const grid = document.createElement('div');
@@ -190,10 +206,14 @@ function revealWord(guess) {
 
   setTimeout(() => {
     if (isWinner) {
+      currentUser.updateStats(isWinner);
       alert('Congratulations!');
     } else if (isGameOver) {
+      currentUser.updateStats(isWinner);
       alert(`Better luck next time! The word was ${state.secret}.`);
     }
+    currentUser.totalGuesses++;
+    displayStats(); // Display the updated stats
   }, 3 * animation_duration);
 }
 
@@ -222,15 +242,14 @@ function removeLetter() {
   state.currentCol--;
 }
 
-function startup() {
-  const game = document.getElementById('game');
-  drawGrid(game);
-
-  const keyboardContainer = document.getElementById('keyboard-container');
-  console.log('Keyboard container:', keyboardContainer); // Debugging log
-  drawKeyboard(keyboardContainer);
-
-  registerKeyboardEvents();
+function displayStats() {
+  const statsContainer = document.getElementById('stats-container');
+  statsContainer.innerHTML = `
+    <p>Games Played: ${currentUser.stats.gamesPlayed}</p>
+    <p>Games Won: ${currentUser.stats.gamesWon}</p>
+    <p>Current Streak: ${currentUser.stats.currentStreak}</p>
+    <p>Max Streak: ${currentUser.stats.maxStreak}</p>
+  `;
 }
 
 startup();

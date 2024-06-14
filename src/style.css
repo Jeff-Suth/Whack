@@ -169,3 +169,15 @@ hr {
   }
 }
 
+#stats-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin-top: 2rem;
+}
+
+#stats-container p {
+  margin: 0.5rem 0;
+}
