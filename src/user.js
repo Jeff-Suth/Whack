@@ -32,5 +32,10 @@ export class user {
       }
       this.saveStats();
     }
+
+    incrementTotalGuesses(){
+        this.stats.totalGuesses++;
+        this.saveStats()
+    }
   }
   

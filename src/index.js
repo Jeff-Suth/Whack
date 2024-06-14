@@ -25,6 +25,18 @@ function startup() {
 
   registerKeyboardEvents();
   displayStats(); // Display initial stats
+
+  const statsButton = document.getElementById('stats-button');
+  const statsMenu = document.getElementById('stats-menu');
+  const closeStatsButton = document.getElementById('close-stats-button');
+
+  statsButton.onclick = () => {
+    statsMenu.classList.add('visible');
+  };
+
+  closeStatsButton.onclick = () => {
+    statsMenu.classList.remove('visible');
+  };
 }
 
 function drawGrid(container) {
@@ -212,7 +224,7 @@ function revealWord(guess) {
       currentUser.updateStats(isWinner);
       alert(`Better luck next time! The word was ${state.secret}.`);
     }
-    currentUser.totalGuesses++;
+    currentUser.incrementTotalGuesses()
     displayStats(); // Display the updated stats
   }, 3 * animation_duration);
 }
@@ -245,6 +257,7 @@ function removeLetter() {
 function displayStats() {
   const statsContainer = document.getElementById('stats-container');
   statsContainer.innerHTML = `
+    <p>Total Guesses: ${currentUser.stats.totalGuesses}</p>
     <p>Games Played: ${currentUser.stats.gamesPlayed}</p>
     <p>Games Won: ${currentUser.stats.gamesWon}</p>
     <p>Current Streak: ${currentUser.stats.currentStreak}</p>
