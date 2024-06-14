@@ -15,8 +15,18 @@ const state = {
 let currentUser;
 
 function startup() {
-  const username = prompt("Enter your username:"); // Prompt the user to enter their username
-  currentUser = new user(username); // Create a new user instance
+  let username = localStorage.getItem('lastUsername');
+  if (!username) {
+    username = prompt("Enter your username:");
+    if (username) {
+      localStorage.setItem('lastUsername', username);
+    } else {
+      alert('Username is required to play the game.');
+      return;
+    }
+  }
+
+  currentUser = new user(username);
   const game = document.getElementById('game');
   drawGrid(game);
 
@@ -123,6 +133,7 @@ function handleKeyClick(key) {
           alert('You have already guessed this word.');
         } else {
           state.guessedWords.push(word); // Add the word to the guessed words array
+          currentUser.incrementTotalGuesses();
           revealWord(word);
           state.currentRow++;
           state.currentCol = 0;
@@ -224,7 +235,6 @@ function revealWord(guess) {
       currentUser.updateStats(isWinner);
       alert(`Better luck next time! The word was ${state.secret}.`);
     }
-    currentUser.incrementTotalGuesses()
     displayStats(); // Display the updated stats
   }, 3 * animation_duration);
 }
