@@ -8,8 +8,8 @@
 - http://localhost:8000/
 - CTRL + C (Windows) to close the server in the terminal so you can refresh the service with new changes.
 - In browser, CTRL + SHIFT + R to force reload.
+- Clear user data in browser console using `localStorage.removeItem('yourUsername');`
 
 # TODO
-1. Add in local profile for individual user
-2. Add experience and rank system
-3. Add a way to recognize a letter is highlighted and can overwrite it
+1. Add experience and rank system
+2. Add a way to recognize a letter is highlighted and can overwrite it
