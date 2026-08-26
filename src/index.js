@@ -11,10 +11,29 @@ const state = {
   currentRow: 0,
   currentCol: 0,
   selectedCol: null, // Column of the letter box the player clicked to overwrite
-  guessedWords: [] // Array to store guessed words
+  guessedWords: [], // Array to store guessed words
+  isGameOver: false
 };
 
 let currentUser;
+
+function showToast(message, duration = 3000) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = message;
+  toast.classList.add('visible');
+
+  clearTimeout(toast.hideTimeout);
+  toast.hideTimeout = setTimeout(() => {
+    toast.classList.remove('visible');
+  }, duration);
+}
 
 function startup() {
   let username = localStorage.getItem('lastUsername');
@@ -140,6 +159,8 @@ function drawKeyboard(container) {
 }
 
 function handleKeyClick(key) {
+  if (state.isGameOver) return;
+
   if (key === 'Enter') {
     const isRowFilled = state.grid[state.currentRow].every(
       (letter) => letter !== ''
@@ -148,7 +169,7 @@ function handleKeyClick(key) {
       const word = getCurrentWord();
       if (isWordValid(word)) {
         if (state.guessedWords.includes(word)) {
-          alert('You have already guessed this word.');
+          showToast('You have already guessed this word.');
         } else {
           state.guessedWords.push(word); // Add the word to the guessed words array
           currentUser.incrementTotalGuesses();
@@ -158,7 +179,7 @@ function handleKeyClick(key) {
           state.selectedCol = null;
         }
       } else {
-        alert(`Not a valid word: ${word}`);
+        showToast(`Not a valid word: ${word}`);
       }
     }
   } else if (key === 'Backspace') {
@@ -244,15 +265,17 @@ function revealWord(guess) {
   }
 
   const isWinner = state.secret === guess;
-  const isGameOver = state.currentRow === 5;
+  const isLastRow = state.currentRow === 5;
 
   setTimeout(() => {
     if (isWinner) {
+      state.isGameOver = true;
       currentUser.updateStats(isWinner);
-      alert('Congratulations!');
-    } else if (isGameOver) {
+      showToast('Congratulations!');
+    } else if (isLastRow) {
+      state.isGameOver = true;
       currentUser.updateStats(isWinner);
-      alert(`Better luck next time! The word was ${state.secret}.`);
+      showToast(`Better luck next time! The word was ${state.secret}.`);
     }
     displayStats(); // Display the updated stats
   }, 3 * animation_duration);

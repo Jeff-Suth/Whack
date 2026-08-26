@@ -18,6 +18,32 @@ body {
   width: 100%;
 }
 
+.toast {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background-color: white;
+  color: var(--default);
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.95rem;
+  font-weight: bold;
+  text-align: center;
+  max-width: min(90vw, 400px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 100;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 .grid {
   display: grid;
   grid-template-rows: repeat(6, auto);
@@ -36,6 +62,8 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 2.4rem;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .box.selected {
@@ -96,10 +124,12 @@ hr {
 
 .footer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   color: white;
   text-align: center;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 0 1rem;
 }
 
 .v-separator {
@@ -143,12 +173,22 @@ hr {
   flex: 1; /* Allow keys to grow and shrink to fit the row */
   text-align: center;
   transition: transform 0.15s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.key:hover {
-  transform: scale(1.15);
-  position: relative;
-  z-index: 1;
+/* Only pop on hover for devices with a real mouse - on touchscreens,
+   :hover sticks after a tap and would leave keys stuck enlarged. */
+@media (hover: hover) and (pointer: fine) {
+  .key:hover {
+    transform: scale(1.15);
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.key:active {
+  transform: scale(0.95);
 }
 
 .key.special-key {
@@ -172,12 +212,25 @@ hr {
 @media (max-width: 600px) {
   .key {
     font-size: 1rem;
-    padding: 0.5rem;
+    padding: 0.5rem 0.25rem;
+    margin: 0.15rem;
+    min-width: 0; /* Let flex-shrink actually shrink keys below their content size on narrow screens */
   }
 
   .key.special-key {
     max-width: 60px;
     padding: 0.5rem;
+  }
+
+  .keyboard-row {
+    gap: 0.25rem;
+  }
+
+  .box {
+    width: 46px;
+    height: 46px;
+    margin: 3px;
+    font-size: 1.8rem;
   }
 }
 
@@ -206,7 +259,10 @@ hr {
   }
 
   .key {
-    padding: 0.6rem;
+    /* padding-top/bottom only - don't clobber the horizontal padding
+       the max-width query above sets for narrow screens */
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
   }
 }
 
@@ -221,13 +277,15 @@ hr {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #stats-menu {
   position: fixed;
   top: 0;
   right: 0;
-  width: 300px;
+  width: min(300px, 85vw);
   height: 100%;
   background-color: var(--default);
   color: white;
@@ -252,6 +310,8 @@ hr {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #stats-container p {
