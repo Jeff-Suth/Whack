@@ -14,9 +14,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: start;
-  margin-top: 5rem;
+  margin-top: 2rem;
   width: 100%;
-  height: 50vh; /* Adjusted to fit the keyboard better */
 }
 
 .grid {
@@ -114,7 +113,7 @@ hr {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 2rem;
+  margin-top: 1rem;
   gap: 0.5rem; /* Add some spacing between rows */
 }
 
@@ -166,6 +165,35 @@ hr {
   .key.special-key {
     max-width: 60px;
     padding: 0.5rem;
+  }
+}
+
+/* On short viewports (small windows, laptops, landscape phones), the
+   keyboard's bottom row - including Enter - could render below the fold
+   and be unreachable without scrolling. Shrink things down to fit. */
+@media (max-height: 750px) {
+  .title {
+    font-size: 2rem;
+    margin: 0.5rem 0 0;
+  }
+
+  #game {
+    margin-top: 1rem;
+  }
+
+  .box {
+    width: 46px;
+    height: 46px;
+    margin: 3px;
+    font-size: 1.8rem;
+  }
+
+  .keyboard {
+    margin-top: 0.5rem;
+  }
+
+  .key {
+    padding: 0.6rem;
   }
 }
 
