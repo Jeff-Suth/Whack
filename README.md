@@ -12,4 +12,3 @@
 
 # TODO
 1. Add experience and rank system
-2. Add a way to recognize a letter is highlighted and can overwrite it
