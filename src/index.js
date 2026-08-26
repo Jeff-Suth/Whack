@@ -140,7 +140,7 @@ function handleKeyClick(key) {
           state.currentCol = 0;
         }
       } else {
-        alert('Not a valid word.');
+        alert(`Not a valid word: ${word}`);
       }
     }
   } else if (key === 'Backspace') {
