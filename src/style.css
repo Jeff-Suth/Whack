@@ -35,6 +35,12 @@ body {
   place-items: center;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 2.4rem;
+  cursor: pointer;
+}
+
+.box.selected {
+  border-color: white;
+  box-shadow: 0 0 0 2px white;
 }
 
 .box.empty {
@@ -136,6 +142,13 @@ hr {
   border-radius: 5px; /* Rounded corners for keys */
   flex: 1; /* Allow keys to grow and shrink to fit the row */
   text-align: center;
+  transition: transform 0.15s ease;
+}
+
+.key:hover {
+  transform: scale(1.15);
+  position: relative;
+  z-index: 1;
 }
 
 .key.special-key {

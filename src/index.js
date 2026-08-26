@@ -10,6 +10,7 @@ const state = {
     .map(() => Array(5).fill('')),
   currentRow: 0,
   currentCol: 0,
+  selectedCol: null, // Column of the letter box the player clicked to overwrite
   guessedWords: [] // Array to store guessed words
 };
 
@@ -68,6 +69,10 @@ function updateGrid() {
     for (let j = 0; j < state.grid[i].length; j++) {
       const box = document.getElementById(`box${i}${j}`);
       box.textContent = state.grid[i][j];
+      box.classList.toggle(
+        'selected',
+        i === state.currentRow && j === state.selectedCol
+      );
     }
   }
 }
@@ -77,9 +82,18 @@ function drawBox(container, row, col, letter = '') {
   box.className = 'box';
   box.textContent = letter;
   box.id = `box${row}${col}`;
+  box.onclick = () => handleBoxClick(row, col);
 
   container.appendChild(box);
   return box;
+}
+
+function handleBoxClick(row, col) {
+  // Only letters already typed in the row currently being guessed can be selected
+  if (row !== state.currentRow || col >= state.currentCol) return;
+
+  state.selectedCol = state.selectedCol === col ? null : col;
+  updateGrid();
 }
 
 function drawKeyboard(container) {
@@ -127,7 +141,10 @@ function drawKeyboard(container) {
 
 function handleKeyClick(key) {
   if (key === 'Enter') {
-    if (state.currentCol === 5) {
+    const isRowFilled = state.grid[state.currentRow].every(
+      (letter) => letter !== ''
+    );
+    if (isRowFilled) {
       const word = getCurrentWord();
       if (isWordValid(word)) {
         if (state.guessedWords.includes(word)) {
@@ -138,6 +155,7 @@ function handleKeyClick(key) {
           revealWord(word);
           state.currentRow++;
           state.currentCol = 0;
+          state.selectedCol = null;
         }
       } else {
         alert(`Not a valid word: ${word}`);
@@ -254,12 +272,22 @@ function isLetter(key) {
 }
 
 function addLetter(letter) {
+  if (state.selectedCol !== null) {
+    state.grid[state.currentRow][state.selectedCol] = letter.toLowerCase();
+    state.selectedCol = null;
+    return;
+  }
   if (state.currentCol === 5) return;
   state.grid[state.currentRow][state.currentCol] = letter.toLowerCase();
   state.currentCol++;
 }
 
 function removeLetter() {
+  if (state.selectedCol !== null) {
+    state.grid[state.currentRow][state.selectedCol] = '';
+    state.selectedCol = null;
+    return;
+  }
   if (state.currentCol === 0) return;
   state.grid[state.currentRow][state.currentCol - 1] = '';
   state.currentCol--;
