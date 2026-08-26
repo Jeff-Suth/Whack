@@ -35,6 +35,43 @@ function showToast(message, duration = 3000) {
   }, duration);
 }
 
+function showPlayAgainButton() {
+  let button = document.getElementById('play-again-button');
+  if (!button) {
+    button = document.createElement('button');
+    button.id = 'play-again-button';
+    button.className = 'play-again-button';
+    button.textContent = 'Play Again';
+    button.onclick = resetGame;
+    document.body.appendChild(button);
+  }
+  button.classList.add('visible');
+}
+
+function resetGame() {
+  state.secret = answerList[Math.floor(Math.random() * answerList.length)];
+  state.grid = Array(6)
+    .fill()
+    .map(() => Array(5).fill(''));
+  state.currentRow = 0;
+  state.currentCol = 0;
+  state.selectedCol = null;
+  state.guessedWords = [];
+  state.isGameOver = false;
+
+  document.querySelectorAll('.box').forEach((box) => {
+    box.className = 'box';
+  });
+  document.querySelectorAll('.key').forEach((key) => {
+    key.classList.remove('empty', 'wrong', 'right');
+  });
+
+  document.getElementById('play-again-button')?.classList.remove('visible');
+  document.getElementById('toast')?.classList.remove('visible');
+
+  updateGrid();
+}
+
 function startup() {
   let username = localStorage.getItem('lastUsername');
   if (!username) {
@@ -272,10 +309,12 @@ function revealWord(guess) {
       state.isGameOver = true;
       currentUser.updateStats(isWinner);
       showToast('Congratulations!');
+      showPlayAgainButton();
     } else if (isLastRow) {
       state.isGameOver = true;
       currentUser.updateStats(isWinner);
       showToast(`Better luck next time! The word was ${state.secret}.`);
+      showPlayAgainButton();
     }
     displayStats(); // Display the updated stats
   }, 3 * animation_duration);
