@@ -1,9 +1,10 @@
 import { user } from './user.js';
 import { wordList } from './dictionary.js';
+import { answerList } from './answers.js';
 
 const dictionary = wordList;
 const state = {
-  secret: dictionary[Math.floor(Math.random() * dictionary.length)],
+  secret: answerList[Math.floor(Math.random() * answerList.length)],
   grid: Array(6)
     .fill()
     .map(() => Array(5).fill('')),
