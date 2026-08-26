@@ -162,7 +162,7 @@ function getCurrentWord() {
 }
 
 function isWordValid(word) {
-  return dictionary.includes(word);
+  return dictionary.includes(word.toLowerCase());
 }
 
 function getNumOfOccurrencesInWord(word, letter) {
@@ -254,7 +254,7 @@ function isLetter(key) {
 
 function addLetter(letter) {
   if (state.currentCol === 5) return;
-  state.grid[state.currentRow][state.currentCol] = letter;
+  state.grid[state.currentRow][state.currentCol] = letter.toLowerCase();
   state.currentCol++;
 }
 
