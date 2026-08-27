@@ -312,59 +312,55 @@ function isWordValid(word) {
   return dictionary.includes(word.toLowerCase());
 }
 
-function getNumOfOccurrencesInWord(word, letter) {
-  let result = 0;
-  for (let i = 0; i < word.length; i++) {
-    if (word[i] === letter) {
-      result++;
-    }
+function getLetterResults(guess, secret) {
+  const remaining = {};
+  for (const letter of secret) {
+    remaining[letter] = (remaining[letter] || 0) + 1;
   }
-  return result;
-}
 
-function getPositionOfOccurrence(word, letter, position) {
-  let result = 0;
-  for (let i = 0; i <= position; i++) {
-    if (word[i] === letter) {
-      result++;
+  const results = new Array(guess.length);
+
+  // First pass: lock in exact matches and consume their letter's budget
+  // before anything else runs. Otherwise, for a guess with a repeated
+  // letter where only one placement is correct, an earlier wrong-position
+  // occurrence can consume the shared budget before the later, correctly
+  // placed occurrence gets checked - making a genuine match show as empty.
+  for (let i = 0; i < guess.length; i++) {
+    if (guess[i] === secret[i]) {
+      results[i] = 'right';
+      remaining[guess[i]]--;
     }
   }
-  return result;
+
+  // Second pass: whatever's left is "wrong" (present elsewhere) as long as
+  // budget remains, otherwise "empty".
+  for (let i = 0; i < guess.length; i++) {
+    if (results[i]) continue;
+    const letter = guess[i];
+    if (remaining[letter] > 0) {
+      results[i] = 'wrong';
+      remaining[letter]--;
+    } else {
+      results[i] = 'empty';
+    }
+  }
+
+  return results;
 }
 
 function revealWord(guess) {
   const row = state.currentRow;
   const animation_duration = 500; // ms
+  const results = getLetterResults(guess, state.secret);
 
   for (let i = 0; i < 5; i++) {
     const box = document.getElementById(`box${row}${i}`);
-    const letter = box.textContent;
-    const numOfOccurrencesSecret = getNumOfOccurrencesInWord(
-      state.secret,
-      letter
-    );
-    const numOfOccurrencesGuess = getNumOfOccurrencesInWord(guess, letter);
-    const letterPosition = getPositionOfOccurrence(guess, letter, i);
+    const letter = guess[i];
+    const className = results[i];
 
     setTimeout(() => {
-      if (
-        numOfOccurrencesGuess > numOfOccurrencesSecret &&
-        letterPosition > numOfOccurrencesSecret
-      ) {
-        box.classList.add('empty');
-        updateKeyClass(letter, 'empty');
-      } else {
-        if (letter === state.secret[i]) {
-          box.classList.add('right');
-          updateKeyClass(letter, 'right');
-        } else if (state.secret.includes(letter)) {
-          box.classList.add('wrong');
-          updateKeyClass(letter, 'wrong');
-        } else {
-          box.classList.add('empty');
-          updateKeyClass(letter, 'empty');
-        }
-      }
+      box.classList.add(className);
+      updateKeyClass(letter, className);
     }, ((i + 1) * animation_duration) / 2);
 
     box.classList.add('animated');
