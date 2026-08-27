@@ -44,6 +44,43 @@ body {
   transform: translateX(-50%) translateY(0);
 }
 
+.xp-popup {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  color: gold;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 2px 2px 4px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 200;
+  opacity: 0;
+  animation: xpPopup 1.8s ease-out forwards;
+}
+
+@keyframes xpPopup {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -80%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -110%) scale(1);
+  }
+}
+
 .play-again-button {
   position: fixed;
   top: 5rem;
@@ -294,11 +331,10 @@ hr {
   }
 }
 
-/* New styles for stats menu */
-#stats-button {
+/* New styles for stats/leaderboard menus */
+.menu-trigger-button {
   position: absolute;
   top: 10px;
-  right: 10px;
   padding: 10px 20px;
   background-color: var(--empty);
   color: white;
@@ -309,7 +345,15 @@ hr {
   -webkit-tap-highlight-color: transparent;
 }
 
-#stats-menu {
+#stats-button {
+  right: 10px;
+}
+
+#leaderboard-button {
+  right: 130px;
+}
+
+.side-panel {
   position: fixed;
   top: 0;
   right: 0;
@@ -317,6 +361,8 @@ hr {
   height: 100%;
   background-color: var(--default);
   color: white;
+  border-left: 2px solid var(--empty);
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -326,11 +372,11 @@ hr {
   transition: transform 0.3s ease-in-out;
 }
 
-#stats-menu.visible {
+.side-panel.visible {
   transform: translateX(0);
 }
 
-#close-stats-button {
+.close-panel-button {
   margin-top: 20px;
   padding: 10px 20px;
   background-color: var(--empty);
@@ -342,6 +388,23 @@ hr {
   -webkit-tap-highlight-color: transparent;
 }
 
-#stats-container p {
+#stats-container p,
+#leaderboard-container p {
   margin: 10px 0;
+}
+
+.badge-icon {
+  width: 96px;
+  height: 96px;
+}
+
+@media (max-width: 600px) {
+  .menu-trigger-button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  #leaderboard-button {
+    right: 95px;
+  }
 }

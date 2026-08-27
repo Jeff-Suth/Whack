@@ -50,10 +50,15 @@
     <h1 class="title">Whack! <span class="title-word-clone"></span></h1>
     <div id="game"></div>
     <div id="keyboard-container"></div>
-    <button id="stats-button">Stats</button> <!-- Button to open stats menu -->
-    <div id="stats-menu" class="stats-menu hidden"> <!-- Stats menu container -->
+    <button id="stats-button" class="menu-trigger-button">Stats</button> <!-- Button to open stats menu -->
+    <div id="stats-menu" class="side-panel hidden"> <!-- Stats menu container -->
       <div id="stats-container"></div>
-      <button id="close-stats-button">Close</button> <!-- Button to close stats menu -->
+      <button id="close-stats-button" class="close-panel-button">Close</button> <!-- Button to close stats menu -->
+    </div>
+    <button id="leaderboard-button" class="menu-trigger-button">Leaderboard</button> <!-- Button to open leaderboard -->
+    <div id="leaderboard-menu" class="side-panel hidden"> <!-- Leaderboard panel container -->
+      <div id="leaderboard-container"></div>
+      <button id="close-leaderboard-button" class="close-panel-button">Close</button> <!-- Button to close leaderboard -->
     </div>
     <hr />
     <p class="footer">
