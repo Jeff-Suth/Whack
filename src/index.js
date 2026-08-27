@@ -1,6 +1,8 @@
 import { user } from './user.js';
 import { wordList } from './dictionary.js';
 import { answerList } from './answers.js';
+import { getNextRankProgress } from './ranks.js';
+import { loginRemote, registerRemote, saveRemoteStats, fetchLeaderboard } from './remoteStats.js';
 
 const dictionary = wordList;
 const state = {
@@ -16,6 +18,7 @@ const state = {
 };
 
 let currentUser;
+let currentPassword;
 
 function showToast(message, duration = 3000) {
   let toast = document.getElementById('toast');
@@ -74,17 +77,27 @@ function resetGame() {
 
 function startup() {
   let username = localStorage.getItem('lastUsername');
-  if (!username) {
-    username = prompt("Enter your username:");
-    if (username) {
-      localStorage.setItem('lastUsername', username);
-    } else {
+  let password = localStorage.getItem('lastPassword');
+  if (!username || !password) {
+    username = prompt('Enter your username:');
+    if (!username) {
       alert('Username is required to play the game.');
       return;
     }
+    password = prompt(
+      "Enter a password (used to save your stats online - don't reuse a real one):"
+    );
+    if (!password) {
+      alert('Password is required to play the game.');
+      return;
+    }
+    localStorage.setItem('lastUsername', username);
+    localStorage.setItem('lastPassword', password);
   }
 
   currentUser = new user(username);
+  currentPassword = password;
+
   const game = document.getElementById('game');
   drawGrid(game);
 
@@ -92,7 +105,7 @@ function startup() {
   drawKeyboard(keyboardContainer);
 
   registerKeyboardEvents();
-  displayStats(); // Display initial stats
+  displayStats(); // Display initial (local) stats right away - remote sync happens in the background
 
   const statsButton = document.getElementById('stats-button');
   const statsMenu = document.getElementById('stats-menu');
@@ -105,6 +118,55 @@ function startup() {
   closeStatsButton.onclick = () => {
     statsMenu.classList.remove('visible');
   };
+
+  const leaderboardButton = document.getElementById('leaderboard-button');
+  const leaderboardMenu = document.getElementById('leaderboard-menu');
+  const closeLeaderboardButton = document.getElementById('close-leaderboard-button');
+
+  leaderboardButton.onclick = () => {
+    leaderboardMenu.classList.add('visible');
+    displayLeaderboard();
+  };
+
+  closeLeaderboardButton.onclick = () => {
+    leaderboardMenu.classList.remove('visible');
+  };
+
+  syncWithRemote(username, password);
+}
+
+async function syncWithRemote(username, password) {
+  const result = await loginRemote(username, password);
+  if (!result) return; // backend unreachable/unconfigured - stay on local stats, silently
+
+  if (result.found) {
+    currentUser.replaceStats(result.stats);
+    displayStats();
+  } else if (result.wrongPassword) {
+    showToast('That username is taken with a different password - playing with local stats only.');
+  } else {
+    registerRemote(username, password, currentUser.stats);
+  }
+}
+
+async function displayLeaderboard() {
+  const container = document.getElementById('leaderboard-container');
+  container.innerHTML = '<p>Loading leaderboard...</p>';
+  const entries = await fetchLeaderboard();
+  if (!entries) {
+    container.innerHTML = '<p>Leaderboard unavailable right now.</p>';
+    return;
+  }
+  if (entries.length === 0) {
+    container.innerHTML = '<p>No players on the leaderboard yet.</p>';
+    return;
+  }
+  container.innerHTML = entries
+    .map(
+      (entry, i) =>
+        `<p>${i + 1}. ${entry.username} - ${entry.gamesWon} wins (${entry.badge})</p>`
+    )
+    .join('');
 }
 
 function drawGrid(container) {
@@ -307,14 +369,17 @@ function revealWord(guess) {
   setTimeout(() => {
     if (isWinner) {
       state.isGameOver = true;
-      currentUser.updateStats(isWinner);
+      currentUser.updateStats(isWinner, row + 1);
       showToast('Congratulations!');
       showPlayAgainButton();
     } else if (isLastRow) {
       state.isGameOver = true;
-      currentUser.updateStats(isWinner);
+      currentUser.updateStats(isWinner, row + 1);
       showToast(`Better luck next time! The word was ${state.secret}.`);
       showPlayAgainButton();
+    }
+    if (state.isGameOver) {
+      saveRemoteStats(currentUser.username, currentPassword, currentUser.stats);
     }
     displayStats(); // Display the updated stats
   }, 3 * animation_duration);
@@ -357,7 +422,14 @@ function removeLetter() {
 
 function displayStats() {
   const statsContainer = document.getElementById('stats-container');
+  const { badge, xp } = currentUser.stats;
+  const { nextBadge, xpForNext } = getNextRankProgress(xp);
+  const progressText = nextBadge ? `${xp} / ${xpForNext} XP to ${nextBadge}` : `${xp} XP (max rank!)`;
+
   statsContainer.innerHTML = `
+    <img class="badge-icon" src="./assets/${badge}.png" alt="${badge} badge" />
+    <p>${badge}</p>
+    <p>${progressText}</p>
     <p>Total Guesses: ${currentUser.stats.totalGuesses}</p>
     <p>Games Played: ${currentUser.stats.gamesPlayed}</p>
     <p>Games Won: ${currentUser.stats.gamesWon}</p>

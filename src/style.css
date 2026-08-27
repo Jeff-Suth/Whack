@@ -294,11 +294,10 @@ hr {
   }
 }
 
-/* New styles for stats menu */
-#stats-button {
+/* New styles for stats/leaderboard menus */
+.menu-trigger-button {
   position: absolute;
   top: 10px;
-  right: 10px;
   padding: 10px 20px;
   background-color: var(--empty);
   color: white;
@@ -309,7 +308,15 @@ hr {
   -webkit-tap-highlight-color: transparent;
 }
 
-#stats-menu {
+#stats-button {
+  right: 10px;
+}
+
+#leaderboard-button {
+  right: 130px;
+}
+
+.side-panel {
   position: fixed;
   top: 0;
   right: 0;
@@ -326,11 +333,11 @@ hr {
   transition: transform 0.3s ease-in-out;
 }
 
-#stats-menu.visible {
+.side-panel.visible {
   transform: translateX(0);
 }
 
-#close-stats-button {
+.close-panel-button {
   margin-top: 20px;
   padding: 10px 20px;
   background-color: var(--empty);
@@ -342,6 +349,23 @@ hr {
   -webkit-tap-highlight-color: transparent;
 }
 
-#stats-container p {
+#stats-container p,
+#leaderboard-container p {
   margin: 10px 0;
+}
+
+.badge-icon {
+  width: 96px;
+  height: 96px;
+}
+
+@media (max-width: 600px) {
+  .menu-trigger-button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  #leaderboard-button {
+    right: 95px;
+  }
 }
