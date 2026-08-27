@@ -1,7 +1,7 @@
 import { user } from './user.js';
 import { wordList } from './dictionary.js';
 import { answerList } from './answers.js';
-import { getNextRankProgress } from './ranks.js';
+import { getNextRankProgress, getXpForGuesses } from './ranks.js';
 import { loginRemote, registerRemote, saveRemoteStats, fetchLeaderboard } from './remoteStats.js';
 
 const dictionary = wordList;
@@ -36,6 +36,14 @@ function showToast(message, duration = 3000) {
   toast.hideTimeout = setTimeout(() => {
     toast.classList.remove('visible');
   }, duration);
+}
+
+function showXpGain(amount) {
+  const popup = document.createElement('div');
+  popup.className = 'xp-popup';
+  popup.textContent = `+${amount} XP`;
+  document.body.appendChild(popup);
+  popup.addEventListener('animationend', () => popup.remove());
 }
 
 function showPlayAgainButton() {
@@ -371,6 +379,7 @@ function revealWord(guess) {
       state.isGameOver = true;
       currentUser.updateStats(isWinner, row + 1);
       showToast('Congratulations!');
+      showXpGain(getXpForGuesses(row + 1));
       showPlayAgainButton();
     } else if (isLastRow) {
       state.isGameOver = true;

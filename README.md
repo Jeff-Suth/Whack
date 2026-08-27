@@ -24,4 +24,7 @@ This part is entirely optional - with no backend deployed, the game plays exactl
 **Security note:** the backing table uses `username` as the partition key and `password` as the sort key - a deliberate, lightweight "shared secret" instead of real hashed authentication. That's a conscious tradeoff for a for-fun project with no sensitive data, not a login system - don't reuse a real password here. Full reasoning is in the plan history / `infra/lib/whack-stack.js` comments.
 
 # TODO
-- [x] Add experience and rank system
+- Add single daily XP bonus (scales with days done in a row)
+- Add xp bonus for every 5 in a row you solve without losing
+- Add a spinning wheel after wins that will start with a 10% chance to give in game currency
+- Add in game shop that can give you 2x XP for an hour, combo freezes for if you miss a day
