@@ -1,20 +1,25 @@
 import { remoteConfig } from './remoteConfig.js';
+import { signRequestHeaders } from './sigv4.js';
 
-// Talks to Cognito Identity + DynamoDB directly over signed HTTPS requests
-// using aws4fetch (a tiny, genuinely browser-native SigV4 signer) instead of
-// the full AWS SDK v3 packages. That was tried first and rejected: loaded via
-// esm.sh, both the DocumentClient (`@aws-sdk/lib-dynamodb`) and the raw
-// `@aws-sdk/client-dynamodb` throw at request time - the SDK's default client
-// setup unconditionally runs a shared-config-file lookup
-// (@smithy/shared-ini-file-loader) that assumes a real Node `fs` module.
-// esm.sh's browser polyfill for `fs.readFile` just throws instead of
-// emulating "file not found", which the SDK doesn't handle gracefully. This
-// isn't a network/credentials problem - it repros with fake credentials
-// before any request is even sent. aws4fetch has no such Node dependency, so
-// this file talks to the raw DynamoDB/Cognito Identity JSON APIs directly.
-const SDK_VERSION = '1.0.20';
-
-let awsClientPromise = null; // module-level cache: resolves to an aws4fetch AwsClient
+// Talks to Cognito Identity + DynamoDB directly over signed HTTPS requests.
+//
+// History of two rejected approaches, kept here so nobody re-tries them:
+// 1. Full AWS SDK v3 packages loaded via esm.sh - both the DocumentClient
+//    (`@aws-sdk/lib-dynamodb`) and the raw `@aws-sdk/client-dynamodb` throw at
+//    request time, because the SDK's default client setup unconditionally
+//    runs a shared-config-file lookup (@smithy/shared-ini-file-loader) that
+//    assumes a real Node `fs` module - esm.sh's browser polyfill for
+//    `fs.readFile` just throws instead of emulating "file not found".
+// 2. aws4fetch (a tiny, otherwise-great SigV4 signer) - it depends on
+//    crypto.subtle, which only exists in a secure context (HTTPS, or
+//    localhost as a special exception). This site is HTTP-only, so
+//    crypto.subtle is undefined there and every signed request throws before
+//    it reaches AWS. Confirmed by testing the live site directly, not a
+//    hypothetical - it worked fine everywhere it was tested from localhost.
+//
+// signRequestHeaders (./sigv4.js) implements SHA-256/HMAC-SHA256 in pure JS,
+// so signing works on any origin regardless of secure-context status.
+let credentialsPromise = null;
 let credentialsExpireAt = 0;
 let initFailed = false;
 
@@ -75,50 +80,51 @@ async function getIdentityCredentials() {
   return Credentials; // { AccessKeyId, SecretKey, SessionToken, Expiration }
 }
 
-async function getAwsClient() {
+async function getCredentials() {
   if (initFailed || !isConfigured()) return null;
 
   const now = Date.now() / 1000;
-  if (awsClientPromise && now < credentialsExpireAt - 60) {
-    return awsClientPromise;
+  if (credentialsPromise && now < credentialsExpireAt - 60) {
+    return credentialsPromise;
   }
 
-  awsClientPromise = (async () => {
-    const { AwsClient } = await import(`https://esm.sh/aws4fetch@${SDK_VERSION}`);
-    const creds = await withTimeout(getIdentityCredentials());
-    credentialsExpireAt = creds.Expiration;
-    return new AwsClient({
-      accessKeyId: creds.AccessKeyId,
-      secretAccessKey: creds.SecretKey,
-      sessionToken: creds.SessionToken,
-      region: remoteConfig.region,
-      service: 'dynamodb'
-    });
-  })();
+  credentialsPromise = withTimeout(getIdentityCredentials());
 
   try {
-    return await awsClientPromise;
+    const creds = await credentialsPromise;
+    credentialsExpireAt = creds.Expiration;
+    return creds;
   } catch (err) {
     console.warn('Whack: remote stats backend unavailable, playing locally.', err);
     initFailed = true;
-    awsClientPromise = null;
+    credentialsPromise = null;
     return null;
   }
 }
 
 async function callDynamoDb(target, body) {
-  const client = await getAwsClient();
-  if (!client) return null;
+  const creds = await getCredentials();
+  if (!creds) return null;
   try {
+    const url = `https://dynamodb.${remoteConfig.region}.amazonaws.com/`;
+    const bodyText = JSON.stringify(body);
+    const signedHeaders = signRequestHeaders({
+      method: 'POST',
+      url,
+      region: remoteConfig.region,
+      service: 'dynamodb',
+      headers: {
+        'Content-Type': 'application/x-amz-json-1.0',
+        'X-Amz-Target': `DynamoDB_20120810.${target}`
+      },
+      body: bodyText,
+      accessKeyId: creds.AccessKeyId,
+      secretAccessKey: creds.SecretKey,
+      sessionToken: creds.SessionToken
+    });
+
     const res = await withTimeout(
-      client.fetch(`https://dynamodb.${remoteConfig.region}.amazonaws.com/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-amz-json-1.0',
-          'X-Amz-Target': `DynamoDB_20120810.${target}`
-        },
-        body: JSON.stringify(body)
-      })
+      fetch(url, { method: 'POST', headers: signedHeaders, body: bodyText })
     );
     if (!res.ok) {
       console.warn(`Whack: DynamoDB ${target} failed`, res.status, await res.text());

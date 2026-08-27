@@ -28,3 +28,4 @@ This part is entirely optional - with no backend deployed, the game plays exactl
 - Add xp bonus for every 5 in a row you solve without losing
 - Add a spinning wheel after wins that will start with a 10% chance to give in game currency
 - Add in game shop that can give you 2x XP for an hour, combo freezes for if you miss a day
+- Add cosmetics? Different color schemes and backgrounds?
