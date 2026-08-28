@@ -46,6 +46,40 @@ function showXpGain(amount) {
   popup.addEventListener('animationend', () => popup.remove());
 }
 
+const PET_CAT_ASLEEP_ART = `    zzz
+  ^-^  ,
+ (-.-) )
+ /   \\/
+(\\_,_/)`;
+const PET_CAT_IDLE_MS = 15000;
+
+function initPetCatIdleState() {
+  const petCat = document.getElementById('pet-cat');
+  if (!petCat) return;
+
+  const awakeHtml = petCat.innerHTML;
+  let idleTimer;
+
+  function goToSleep() {
+    petCat.innerHTML = PET_CAT_ASLEEP_ART;
+    petCat.setAttribute('aria-label', 'A small pet cat, sleeping');
+  }
+
+  function markActivity() {
+    if (petCat.innerHTML !== awakeHtml) {
+      petCat.innerHTML = awakeHtml;
+      petCat.setAttribute('aria-label', 'A small pet cat');
+    }
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(goToSleep, PET_CAT_IDLE_MS);
+  }
+
+  document.addEventListener('keydown', markActivity);
+  document.addEventListener('pointerdown', markActivity);
+
+  markActivity();
+}
+
 function showPlayAgainButton() {
   let button = document.getElementById('play-again-button');
   if (!button) {
@@ -443,4 +477,5 @@ function displayStats() {
   `;
 }
 
+initPetCatIdleState();
 startup();
