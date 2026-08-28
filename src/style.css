@@ -30,6 +30,40 @@ body {
   white-space: pre;
   pointer-events: none;
   z-index: 50;
+  animation: pet-cat-bob 2.2s ease-in-out infinite;
+}
+
+.pet-cat-tail {
+  display: inline-block;
+  transform-origin: bottom left;
+  animation: pet-cat-tail-wag 1.1s ease-in-out infinite;
+}
+
+@keyframes pet-cat-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pet-cat-tail-wag {
+  0%,
+  100% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-cat,
+  .pet-cat-tail {
+    animation: none;
+  }
 }
 
 /* Notifications read as a speech bubble coming from the pet cat in the
