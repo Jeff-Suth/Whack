@@ -18,20 +18,37 @@ body {
   width: 100%;
 }
 
+.pet-cat {
+  position: fixed;
+  top: 10px;
+  left: 12px;
+  margin: 0;
+  color: white;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+  line-height: 1.15;
+  white-space: pre;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Notifications read as a speech bubble coming from the pet cat in the
+   top-left corner, rather than a generic centered banner. */
 .toast {
   position: fixed;
-  top: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%) translateY(-20px);
+  top: 14px;
+  left: 92px;
+  transform: translateY(-10px) scale(0.9);
+  transform-origin: left center;
   background-color: white;
   color: var(--default);
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
+  padding: 0.65rem 1.1rem;
+  border-radius: 14px;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: bold;
-  text-align: center;
-  max-width: min(90vw, 400px);
+  text-align: left;
+  max-width: min(calc(100vw - 112px), 320px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
   opacity: 0;
   pointer-events: none;
@@ -39,9 +56,20 @@ body {
   z-index: 100;
 }
 
+.toast::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -7px;
+  transform: translateY(-50%);
+  border-width: 6px 8px 6px 0;
+  border-style: solid;
+  border-color: transparent white transparent transparent;
+}
+
 .toast.visible {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 .xp-popup {
@@ -406,5 +434,14 @@ hr {
 
   #leaderboard-button {
     right: 95px;
+  }
+
+  .pet-cat {
+    font-size: 0.7rem;
+  }
+
+  .toast {
+    left: 78px;
+    max-width: min(calc(100vw - 98px), 280px);
   }
 }
